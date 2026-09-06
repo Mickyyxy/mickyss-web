@@ -3,10 +3,10 @@ version: '3.8'
 services:
   db:
     image: mysql:8.0
-    container_name: mickyss_db
+    container_name: mickyss1_db
     restart: always
     environment:
-      MYSQL_DATABASE: mickyss_db
+      MYSQL_DATABASE: mickyss1_db
       MYSQL_ROOT_PASSWORD: rootpassword
     ports:
       - "3307:3306"
@@ -17,7 +17,7 @@ services:
     build:
       context: ./api
       dockerfile: Dockerfile
-    container_name: mickyss_api
+    container_name: mickyss1_api
     restart: always
     volumes:
       - ./api:/var/www/html/api
