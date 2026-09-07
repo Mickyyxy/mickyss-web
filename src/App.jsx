@@ -254,7 +254,6 @@ const groupInventoryByProduct = (items) => {
       };
     }
 
-    // หากรายการนี้มีรูปภาพ ให้อัปเดตรูปภาพให้กลุ่ม
     if (item.image && !groups[baseName].image) {
       groups[baseName].image = item.image;
     }
@@ -268,7 +267,7 @@ const groupInventoryByProduct = (items) => {
   return Object.values(groups);
 };
 
-// Helper สำหรับการแสดงผลตราวิทยาลัย (รองรับทั้ง Image URL, Base64 และ Emoji/ข้อความ)
+// Helper สำหรับการแสดงผลตราวิทยาลัย
 const renderCollegeLogo = (logo, size = '22px') => {
   if (!logo) return <span style={{ fontSize: size }}>🏛️</span>;
   if (logo.startsWith('http://') || logo.startsWith('https://') || logo.startsWith('data:image/')) {
@@ -354,20 +353,6 @@ const uiStyles = {
     fontSize: '13px',
     outline: 'none',
     transition: 'all 0.2s ease',
-  },
-  dropdownSelect: {
-    padding: '12px 16px',
-    background: '#ffffff',
-    border: '1.5px solid #0284c7',
-    borderRadius: '16px',
-    color: '#0f172a',
-    fontSize: '13px',
-    fontWeight: '700',
-    outline: 'none',
-    cursor: 'pointer',
-    boxShadow: '0 4px 12px rgba(2, 132, 199, 0.1)',
-    transition: 'all 0.2s ease',
-    minWidth: '220px'
   },
   submitBtn: {
     width: '100%',
@@ -851,7 +836,7 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [inventory, setInventory] = useState(initialInventory);
   
-  // State ตราวิทยาลัย (รองรับรูปภาพ URL / Base64 และ Emoji)
+  // State ตราวิทยาลัย
   const [collegeLogo, setCollegeLogo] = useState('🏛️');
   const [logoInput, setLogoInput] = useState('');
 
@@ -1006,7 +991,6 @@ export default function App() {
     }
   };
 
-  // จัดการอัปโหลดรูปภาพสิ่งของจากไฟล์ในเครื่องคอมพิวเตอร์
   const handleItemImageFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -1040,7 +1024,6 @@ export default function App() {
     setIsNewItem(false);
   };
 
-  // จัดการการเปลี่ยนตราวิทยาลัยโดยการเลือกไฟล์จากเครื่อง
   const handleLogoFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -1053,7 +1036,6 @@ export default function App() {
     }
   };
 
-  // จัดการการเปลี่ยนตราวิทยาลัยด้วย URL หรือ อิโมจิ
   const handleSaveLogoUrl = () => {
     if (logoInput.trim()) {
       setCollegeLogo(logoInput.trim());
@@ -1155,14 +1137,6 @@ export default function App() {
     return matchesSearch && matchesCategory;
   });
 
-  const productsByCategory = CATEGORIES_LIST.reduce((acc, catName) => {
-    const catProds = filteredProducts.filter((p) => p.category === catName);
-    if (catProds.length > 0) {
-      acc[catName] = catProds;
-    }
-    return acc;
-  }, {});
-
   const totalCartCount = cart.reduce((sum, item) => sum + item.qty, 0);
 
   return (
@@ -1221,7 +1195,6 @@ export default function App() {
           .no-print { display: none !important; }
         }
 
-        /* Responsive Mobile Styles to Prevent Overflow */
         @media (max-width: 768px) {
           html, body, #root {
             overflow-x: hidden !important;
@@ -1432,7 +1405,7 @@ export default function App() {
                   </div>
 
                   <button onClick={() => handleOpenUserEdit(currentUser)} style={{ ...uiStyles.menuItemBtn, background: '#ffffff', color: '#334155' }} className="hover-menu-btn">
-                    <span>✏️ แก้ไขโปรไฟล์</span>
+                    <span>✏️ แก้ไขข้อมูลส่วนตัว</span>
                   </button>
 
                   <button onClick={handleLogout} style={{ ...uiStyles.menuItemBtn, background: '#fff1f2', color: '#e11d48' }} className="hover-menu-btn">
@@ -1445,32 +1418,33 @@ export default function App() {
 
           <div style={uiStyles.mainContainer} className="main-container-responsive">
             {currentUser.role === 'admin' ? (
-              <>
+              <div>
                 <div style={uiStyles.statsGrid} className="stats-grid-responsive">
-                  <StatCard title="รายการคลังทั้งหมด" value={inventory.length} unit="รายการ" icon="📦" color="#0284c7" />
-                  <StatCard title="คำขอรออนุมัติ" value={requests.filter((r) => r.status === 'pending').length} unit="รายการ" icon="⏳" color="#ec4899" />
-                  <StatCard title="รายการอนุมัติแล้ว" value={requests.filter((r) => r.status === 'approved').length} unit="รายการ" icon="✅" color="#10b981" />
+                  <StatCard title="รายการขอเบิกทั้งหมด" value={requests.length} unit="รายการ" icon="📋" color="#0284c7" />
+                  <StatCard title="รออนุมัติ" value={requests.filter(r => r.status === 'pending').length} unit="รายการ" icon="⏳" color="#d97706" />
+                  <StatCard title="อนุมัติแล้ว" value={requests.filter(r => r.status === 'approved').length} unit="รายการ" icon="✅" color="#16a34a" />
+                  <StatCard title="คลังพัสดุทั้งหมด" value={inventory.length} unit="รายการ" icon="📦" color="#8b5cf6" />
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
                   <div style={uiStyles.tabGroup} className="tab-group-responsive">
-                    <button onClick={() => setAdminTab('requests')} style={{ ...uiStyles.tabBtn, background: adminTab === 'requests' ? '#ffffff' : 'transparent', color: adminTab === 'requests' ? '#0284c7' : '#64748b', flexShrink: 0 }}>
-                      📋 รายการขอเบิก
+                    <button onClick={() => setAdminTab('requests')} style={{ ...uiStyles.tabBtn, background: adminTab === 'requests' ? '#0284c7' : 'transparent', color: adminTab === 'requests' ? '#ffffff' : '#64748b' }}>
+                      📋 รายการเบิกพัสดุ ({requests.length})
                     </button>
-                    <button onClick={() => setAdminTab('inventory')} style={{ ...uiStyles.tabBtn, background: adminTab === 'inventory' ? '#ffffff' : 'transparent', color: adminTab === 'inventory' ? '#0284c7' : '#64748b', flexShrink: 0 }}>
-                      📦 จัดการสต็อกและแนบรูปภาพพัสดุ
+                    <button onClick={() => setAdminTab('inventory')} style={{ ...uiStyles.tabBtn, background: adminTab === 'inventory' ? '#0284c7' : 'transparent', color: adminTab === 'inventory' ? '#ffffff' : '#64748b' }}>
+                      📦 จัดการคลังพัสดุ ({inventory.length})
                     </button>
-                    <button onClick={() => setAdminTab('users')} style={{ ...uiStyles.tabBtn, background: adminTab === 'users' ? '#ffffff' : 'transparent', color: adminTab === 'users' ? '#0284c7' : '#64748b', flexShrink: 0 }}>
-                      👥 จัดการผู้ใช้งาน
+                    <button onClick={() => setAdminTab('users')} style={{ ...uiStyles.tabBtn, background: adminTab === 'users' ? '#0284c7' : 'transparent', color: adminTab === 'users' ? '#ffffff' : '#64748b' }}>
+                      👥 จัดการผู้ใช้ ({users.length})
                     </button>
-                    <button onClick={() => setAdminTab('logo')} style={{ ...uiStyles.tabBtn, background: adminTab === 'logo' ? '#ffffff' : 'transparent', color: adminTab === 'logo' ? '#0284c7' : '#64748b', flexShrink: 0 }}>
+                    <button onClick={() => setAdminTab('settings')} style={{ ...uiStyles.tabBtn, background: adminTab === 'settings' ? '#0284c7' : 'transparent', color: adminTab === 'settings' ? '#ffffff' : '#64748b' }}>
                       🏛️ ตราวิทยาลัย
                     </button>
                   </div>
 
                   {adminTab === 'inventory' && (
                     <button onClick={handleAddNewItem} style={uiStyles.primaryBtn}>
-                      ➕ เพิ่มรายการพัสดุใหม่
+                      + เพิ่มรายการพัสดุใหม่
                     </button>
                   )}
                 </div>
@@ -1480,48 +1454,52 @@ export default function App() {
                     <table style={uiStyles.table} className="table-responsive">
                       <thead>
                         <tr style={uiStyles.thRow}>
-                          <th style={uiStyles.th}>รหัสเอกสาร</th>
+                          <th style={uiStyles.th}>รหัส</th>
                           <th style={uiStyles.th}>ผู้ขอเบิก</th>
                           <th style={uiStyles.th}>แผนกวิชา</th>
-                          <th style={uiStyles.th}>รายการพัสดุ</th>
+                          <th style={uiStyles.th}>รายการ</th>
                           <th style={uiStyles.th}>วัตถุประสงค์</th>
+                          <th style={uiStyles.th}>วันที่</th>
                           <th style={uiStyles.th}>สถานะ</th>
-                          <th style={uiStyles.th}>จัดการ</th>
+                          <th style={{ ...uiStyles.th, textAlign: 'right' }}>จัดการ</th>
                         </tr>
                       </thead>
                       <tbody>
                         {requests.map((req) => (
                           <tr key={req.id} style={uiStyles.tr} className="tr-hover">
-                            <td style={uiStyles.td}><strong style={{ color: '#0284c7' }}>REQ-{req.id}</strong></td>
-                            <td style={uiStyles.td}>{req.teacherName}</td>
+                            <td style={{ ...uiStyles.td, fontWeight: 'bold' }}>#{req.id}</td>
+                            <td style={uiStyles.td}>
+                              <div style={{ fontWeight: '700', color: '#0f172a' }}>{req.teacherName}</div>
+                              <div style={{ fontSize: '11px', color: '#64748b' }}>📞 {req.phone}</div>
+                            </td>
                             <td style={uiStyles.td}>{req.department}</td>
                             <td style={uiStyles.td}>
-                              {req.items.map((it, idx) => (
-                                <div key={idx} style={{ color: '#0f172a', fontWeight: '600' }}>• {it.name} <span style={{ color: '#0284c7' }}>(x{it.qty})</span></div>
-                              ))}
+                              {req.items ? req.items.map((it, idx) => (
+                                <div key={idx} style={{ fontSize: '12px' }}>
+                                  • {it.name} <strong style={{ color: '#0284c7' }}>x{it.qty}</strong>
+                                </div>
+                              )) : (
+                                <div>• {req.equipment_name} <strong>x{req.qty}</strong></div>
+                              )}
                             </td>
-                            <td style={uiStyles.td}>{req.purpose}</td>
-                            <td style={uiStyles.td}>
-                              <span style={{
-                                padding: '6px 12px',
-                                borderRadius: '20px',
-                                fontSize: '11px',
-                                fontWeight: '800',
-                                background: req.status === 'approved' ? '#dcfce7' : req.status === 'rejected' ? '#fce7f3' : '#fef3c7',
-                                color: req.status === 'approved' ? '#15803d' : req.status === 'rejected' ? '#be185d' : '#b45309',
-                              }}>
-                                {req.status === 'approved' ? 'อนุมัติแล้ว' : req.status === 'rejected' ? 'ปฏิเสธ' : 'รออนุมัติ'}
-                              </span>
+                            <td style={{ ...uiStyles.td, maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {req.purpose}
                             </td>
+                            <td style={uiStyles.td}>{req.date}</td>
                             <td style={uiStyles.td}>
-                              <div style={{ display: 'flex', gap: '8px' }}>
+                              {req.status === 'pending' && <span style={{ padding: '4px 10px', borderRadius: '12px', background: '#fef3c7', color: '#b45309', fontSize: '11px', fontWeight: 'bold' }}>⏳ รออนุมัติ</span>}
+                              {req.status === 'approved' && <span style={{ padding: '4px 10px', borderRadius: '12px', background: '#dcfce7', color: '#15803d', fontSize: '11px', fontWeight: 'bold' }}>✅ อนุมัติแล้ว</span>}
+                              {req.status === 'rejected' && <span style={{ padding: '4px 10px', borderRadius: '12px', background: '#ffe4e6', color: '#be123c', fontSize: '11px', fontWeight: 'bold' }}>❌ ปฏิเสธ</span>}
+                            </td>
+                            <td style={{ ...uiStyles.td, textAlign: 'right' }}>
+                              <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
                                 {req.status === 'pending' && (
                                   <>
                                     <button onClick={() => handleApproveRequest(req)} style={uiStyles.approveBtn}>อนุมัติ</button>
                                     <button onClick={() => handleRejectRequest(req.id)} style={uiStyles.rejectBtn}>ปฏิเสธ</button>
                                   </>
                                 )}
-                                <button onClick={() => setSelectedPrintRequest(req)} style={uiStyles.printBtn}>🖨️ พิมพ์เอกสาร</button>
+                                <button onClick={() => setSelectedPrintRequest(req)} style={uiStyles.printBtn}>🖨️ ใบเบิก</button>
                               </div>
                             </td>
                           </tr>
@@ -1536,33 +1514,33 @@ export default function App() {
                     <table style={uiStyles.table} className="table-responsive">
                       <thead>
                         <tr style={uiStyles.thRow}>
-                          <th style={uiStyles.th}>รหัส</th>
-                          <th style={uiStyles.th}>รูปภาพ / ไอคอน</th>
+                          <th style={uiStyles.th}>รูปภาพ</th>
+                          <th style={uiStyles.th}>รหัสพัสดุ</th>
                           <th style={uiStyles.th}>ชื่อพัสดุ</th>
                           <th style={uiStyles.th}>หมวดหมู่</th>
-                          <th style={uiStyles.th}>ราคา (บาท)</th>
-                          <th style={uiStyles.th}>คงเหลือ</th>
-                          <th style={uiStyles.th}>จัดการ</th>
+                          <th style={uiStyles.th}>ราคา/หน่วย</th>
+                          <th style={uiStyles.th}>จำนวนคงเหลือ</th>
+                          <th style={{ ...uiStyles.th, textAlign: 'right' }}>จัดการ</th>
                         </tr>
                       </thead>
                       <tbody>
                         {inventory.map((item) => (
                           <tr key={item.id} style={uiStyles.tr} className="tr-hover">
-                            <td style={uiStyles.td}><strong>{item.code}</strong></td>
                             <td style={uiStyles.td}>
                               {item.image ? (
-                                <img src={item.image} alt={item.name} style={{ width: '40px', height: '40px', objectFit: 'cover', borderRadius: '8px' }} />
+                                <img src={item.image} alt={item.name} style={{ width: '36px', height: '36px', objectFit: 'cover', borderRadius: '8px' }} />
                               ) : (
                                 <span style={{ fontSize: '24px' }}>{item.icon}</span>
                               )}
                             </td>
-                            <td style={uiStyles.td}>{item.name}</td>
+                            <td style={{ ...uiStyles.td, fontWeight: '700', color: '#0284c7' }}>{item.code}</td>
+                            <td style={{ ...uiStyles.td, fontWeight: '700' }}>{item.name}</td>
                             <td style={uiStyles.td}>{item.category}</td>
-                            <td style={uiStyles.td}>{item.price > 0 ? `${item.price} ฿` : '-'}</td>
+                            <td style={uiStyles.td}>{item.price > 0 ? `${item.price} ฿` : 'ไม่ระบุ'}</td>
                             <td style={uiStyles.td}><StockBadge stock={item.stock} /></td>
-                            <td style={uiStyles.td}>
-                              <div style={{ display: 'flex', gap: '8px' }}>
-                                <button onClick={() => handleEditItem(item)} style={uiStyles.editBtn}>✏️ แก้ไข / ใส่รูป</button>
+                            <td style={{ ...uiStyles.td, textAlign: 'right' }}>
+                              <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                                <button onClick={() => handleEditItem(item)} style={uiStyles.editBtn}>✏️ แก้ไข</button>
                                 <button onClick={() => handleDeleteItem(item.id)} style={uiStyles.deleteBtn}>🗑️ ลบ</button>
                               </div>
                             </td>
@@ -1578,23 +1556,27 @@ export default function App() {
                     <table style={uiStyles.table} className="table-responsive">
                       <thead>
                         <tr style={uiStyles.thRow}>
-                          <th style={uiStyles.th}>รหัสประจำตัว</th>
+                          <th style={uiStyles.th}>รหัสบุคลากร</th>
                           <th style={uiStyles.th}>ชื่อ-นามสกุล</th>
                           <th style={uiStyles.th}>สิทธิ์</th>
                           <th style={uiStyles.th}>แผนกวิชา</th>
                           <th style={uiStyles.th}>เบอร์โทรศัพท์</th>
-                          <th style={uiStyles.th}>จัดการ</th>
+                          <th style={{ ...uiStyles.th, textAlign: 'right' }}>จัดการ</th>
                         </tr>
                       </thead>
                       <tbody>
                         {users.map((u) => (
                           <tr key={u.id} style={uiStyles.tr} className="tr-hover">
-                            <td style={uiStyles.td}><strong>{u.id}</strong></td>
-                            <td style={uiStyles.td}>{u.name}</td>
-                            <td style={uiStyles.td}>{u.role === 'admin' ? '⚙️ เจ้าหน้าที่' : '👨‍🏫 ครูผู้สอน'}</td>
+                            <td style={{ ...uiStyles.td, fontWeight: '700', color: '#0284c7' }}>{u.id}</td>
+                            <td style={{ ...uiStyles.td, fontWeight: '700' }}>{u.name}</td>
+                            <td style={uiStyles.td}>
+                              <span style={{ padding: '4px 10px', borderRadius: '12px', background: u.role === 'admin' ? '#f3e8ff' : '#e0f2fe', color: u.role === 'admin' ? '#7e22ce' : '#0369a1', fontSize: '11px', fontWeight: 'bold' }}>
+                                {u.role === 'admin' ? '⚙️ เจ้าหน้าที่' : '👨‍🏫 อาจารย์'}
+                              </span>
+                            </td>
                             <td style={uiStyles.td}>{u.department || '-'}</td>
                             <td style={uiStyles.td}>{u.phone || '-'}</td>
-                            <td style={uiStyles.td}>
+                            <td style={{ ...uiStyles.td, textAlign: 'right' }}>
                               <button onClick={() => handleOpenUserEdit(u)} style={uiStyles.editBtn}>✏️ แก้ไข</button>
                             </td>
                           </tr>
@@ -1604,166 +1586,151 @@ export default function App() {
                   </div>
                 )}
 
-                {adminTab === 'logo' && (
-                  <div style={{ ...uiStyles.tableCard, maxWidth: '600px', margin: '0 auto' }} className="modal-content-responsive">
-                    <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', color: '#0f172a' }}>🏛️ ตั้งค่าตราวิทยาลัย</h3>
-                    <div style={{ textAlign: 'center', marginBottom: '20px', padding: '20px', background: '#f8fafc', borderRadius: '16px' }}>
-                      <div style={{ width: '80px', height: '80px', margin: '0 auto 12px auto', background: '#fff', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
-                        {renderCollegeLogo(collegeLogo, '40px')}
-                      </div>
-                      <span style={{ fontSize: '12px', color: '#64748b' }}>ตัวอย่างแสดงตราวิทยาลัยในปัจจุบัน</span>
-                    </div>
-
+                {adminTab === 'settings' && (
+                  <div style={{ ...uiStyles.tableCard, maxWidth: '500px', margin: '0 auto' }} className="table-card-responsive">
+                    <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '800' }}>🏛️ ตั้งค่าตราวิทยาลัย</h3>
+                    
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      <div>
-                        <label style={uiStyles.label}>1. อัปโหลดรูปภาพจากเครื่อง</label>
-                        <input type="file" accept="image/*" onChange={handleLogoFileUpload} style={uiStyles.input} />
+                      <div style={{ textAlign: 'center', padding: '20px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                        <div style={{ width: '80px', height: '80px', margin: '0 auto 10px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                          {renderCollegeLogo(collegeLogo, '40px')}
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#64748b' }}>ตัวอย่างตราวิทยาลัยในปัจจุบัน</div>
                       </div>
-                      <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '12px' }}>— หรือ —</div>
+
                       <div>
-                        <label style={uiStyles.label}>2. ระบุ Image URL หรือ Emoji</label>
+                        <label style={uiStyles.label}>อัปโหลดไฟล์ตราวิทยาลัย (จากเครื่อง)</label>
+                        <input type="file" accept="image/*" onChange={handleLogoFileUpload} style={{ fontSize: '12px' }} />
+                      </div>
+
+                      <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '12px' }}>— หรือ —</div>
+
+                      <div>
+                        <label style={uiStyles.label}>ระบุ URL รูปภาพ หรือ Emoji</label>
                         <div style={{ display: 'flex', gap: '8px' }}>
-                          <input type="text" placeholder="https://... หรือ 🏛️" value={logoInput} onChange={(e) => setLogoInput(e.target.value)} style={uiStyles.input} />
-                          <button onClick={handleSaveLogoUrl} style={{ ...uiStyles.primaryBtn, minWidth: '90px' }}>บันทึก</button>
+                          <input type="text" placeholder="https://... หรือ 🏫" value={logoInput} onChange={(e) => setLogoInput(e.target.value)} style={uiStyles.input} />
+                          <button onClick={handleSaveLogoUrl} style={uiStyles.primaryBtn}>บันทึก</button>
                         </div>
                       </div>
                     </div>
                   </div>
                 )}
-              </>
+              </div>
             ) : (
-              /* User / Teacher View */
-              <>
+              <div>
                 <div style={uiStyles.heroBanner} className="hero-banner-responsive">
                   <div>
-                    <h2 style={{ margin: '0 0 6px 0', fontSize: '20px', fontWeight: '800', color: '#0f172a' }}>
-                      สวัสดี, {currentUser.name} 👋
+                    <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#0f172a' }}>
+                      ยินดีต้อนรับ, {currentUser.name} 👋
                     </h2>
-                    <p style={{ margin: 0, fontSize: '13px', color: '#475569' }}>
-                      แผนก{currentUser.department} • เลือกรายการวัสดุอุปกรณ์ที่ต้องการขอเบิกได้เลย
+                    <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#0284c7', fontWeight: '600' }}>
+                      เลือกวัสดุอุปกรณ์ที่ต้องการเบิกใช้สำหรับการเรียนการสอนได้ทันที
                     </p>
                   </div>
                   <input
                     type="text"
-                    placeholder="🔍 ค้นหาชื่อพัสดุ หรือ รหัสพัสดุ..."
+                    placeholder="🔍 ค้นหาชื่อพัสดุ หรือ รหัสสินค้า..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     style={uiStyles.searchInput}
                   />
                 </div>
 
-                <div style={{ marginBottom: '20px' }}>
-                  <div style={uiStyles.tabGroup} className="tab-group-responsive">
-                    {categories.map((cat) => (
-                      <button
-                        key={cat}
-                        onClick={() => setSelectedCategory(cat)}
-                        style={{
-                          ...uiStyles.tabBtn,
-                          background: selectedCategory === cat ? '#0284c7' : '#ffffff',
-                          color: selectedCategory === cat ? '#ffffff' : '#475569',
-                          boxShadow: selectedCategory === cat ? '0 4px 12px rgba(2, 132, 199, 0.3)' : 'none',
-                          border: '1px solid #e2e8f0',
-                          flexShrink: 0
-                        }}
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {Object.keys(productsByCategory).length > 0 ? (
-                  Object.entries(productsByCategory).map(([catName, productGroups]) => (
-                    <div key={catName} style={{ marginBottom: '32px' }}>
-                      <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '800', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ width: '8px', height: '18px', background: '#0284c7', borderRadius: '4px', display: 'inline-block' }}></span>
-                        {catName}
-                      </h3>
-                      <div style={uiStyles.equipmentGrid} className="equipment-grid-responsive">
-                        {productGroups.map((group) => (
-                          <TikTokProductCard
-                            key={group.baseName}
-                            productGroup={group}
-                            cart={cart}
-                            onAddToCart={addToCart}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div style={{ textAlign: 'center', padding: '60px 20px', color: '#94a3b8' }}>
-                    <span style={{ fontSize: '48px', display: 'block', marginBottom: '12px' }}>🔍</span>
-                    <p style={{ margin: 0, fontSize: '15px', fontWeight: '700' }}>ไม่พบรายการพัสดุที่คุณค้นหา</p>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Cart Drawer */}
-      {isCartOpen && (
-        <div style={uiStyles.modalOverlay} onClick={() => setIsCartOpen(false)}>
-          <div style={uiStyles.cartDrawer} className="cart-drawer-responsive" onClick={(e) => e.stopPropagation()}>
-            <div style={uiStyles.drawerHeader}>
-              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: '#0f172a' }}>🛒 ตะกร้าขอเบิกพัสดุ</h3>
-              <button onClick={() => setIsCartOpen(false)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#64748b' }}>✕</button>
-            </div>
-
-            <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
-              {cart.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px 0', color: '#94a3b8' }}>
-                  <span style={{ fontSize: '40px', display: 'block', marginBottom: '8px' }}>🛒</span>
-                  <p style={{ margin: 0, fontSize: '14px' }}>ยังไม่มีรายการพัสดุในตะกร้า</p>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  {cart.map((item) => (
-                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
-                      <div style={{ flex: 1, paddingRight: '12px' }}>
-                        <div style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a' }}>{item.name}</div>
-                        <div style={{ fontSize: '11px', color: '#0284c7', marginTop: '2px' }}>{item.code}</div>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <button onClick={() => updateCartQty(item.id, -1)} style={uiStyles.qtyBtn}>-</button>
-                        <span style={{ fontSize: '13px', fontWeight: 'bold', minWidth: '20px', textAlign: 'center' }}>{item.qty}</span>
-                        <button onClick={() => updateCartQty(item.id, 1)} style={uiStyles.qtyBtn}>+</button>
-                      </div>
-                    </div>
+                <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '16px', marginBottom: '20px' }} className="tab-group-responsive">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: '12px',
+                        border: 'none',
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        background: selectedCategory === cat ? '#0284c7' : '#ffffff',
+                        color: selectedCategory === cat ? '#ffffff' : '#64748b',
+                        boxShadow: selectedCategory === cat ? '0 4px 12px rgba(2, 132, 199, 0.25)' : '0 2px 6px rgba(0,0,0,0.03)',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      {cat}
+                    </button>
                   ))}
-
-                  <div style={{ marginTop: '16px' }}>
-                    <label style={uiStyles.label}>ระบุวัตถุประสงค์ในการนำไปใช้ <span style={{ color: '#e11d48' }}>*</span></label>
-                    <textarea
-                      placeholder="เช่น ใช้สำหรับการเรียนการสอนวิชาคอมพิวเตอร์..."
-                      value={purpose}
-                      onChange={(e) => setPurpose(e.target.value)}
-                      style={{ ...uiStyles.input, minHeight: '80px', resize: 'vertical' }}
-                    />
-                  </div>
                 </div>
-              )}
-            </div>
 
-            {cart.length > 0 && (
-              <div style={{ padding: '20px 24px', borderTop: '1px solid #f1f5f9', background: '#ffffff' }}>
-                <button onClick={handleCheckoutCart} style={uiStyles.submitBtn}>
-                  ส่งคำขอเบิกพัสดุ 📩
-                </button>
+                <div style={uiStyles.equipmentGrid} className="equipment-grid-responsive">
+                  {filteredProducts.map((group) => (
+                    <TikTokProductCard
+                      key={group.baseName}
+                      productGroup={group}
+                      cart={cart}
+                      onAddToCart={addToCart}
+                    />
+                  ))}
+                </div>
               </div>
             )}
           </div>
         </div>
       )}
 
-      {/* Edit User Modal */}
+      {/* MODAL: EDIT/ADD ITEM */}
+      {editingItem && (
+        <div style={uiStyles.modalOverlay}>
+          <div style={uiStyles.modalContent} className="modal-content-responsive">
+            <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '800', color: '#0f172a' }}>
+              {isNewItem ? '✨ เพิ่มรายการพัสดุใหม่' : '✏️ แก้ไขข้อมูลพัสดุ'}
+            </h3>
+            <form onSubmit={handleSaveItemEdit} style={uiStyles.formStack}>
+              <div>
+                <label style={uiStyles.label}>รหัสพัสดุ</label>
+                <input type="text" value={editingItem.code} onChange={(e) => setEditingItem({ ...editingItem, code: e.target.value })} style={uiStyles.input} required />
+              </div>
+              <div>
+                <label style={uiStyles.label}>ชื่อพัสดุ</label>
+                <input type="text" value={editingItem.name} onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })} style={uiStyles.input} required />
+              </div>
+              <div>
+                <label style={uiStyles.label}>หมวดหมู่</label>
+                <select value={editingItem.category} onChange={(e) => setEditingItem({ ...editingItem, category: e.target.value })} style={uiStyles.input}>
+                  {CATEGORIES_LIST.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label style={uiStyles.label}>ราคาต่อหน่วย (บาท)</label>
+                <input type="number" step="0.01" value={editingItem.price} onChange={(e) => setEditingItem({ ...editingItem, price: e.target.value })} style={uiStyles.input} />
+              </div>
+              <div>
+                <label style={uiStyles.label}>จำนวนคงเหลือในคลัง</label>
+                <input type="number" value={editingItem.stock} onChange={(e) => setEditingItem({ ...editingItem, stock: e.target.value })} style={uiStyles.input} required />
+              </div>
+              <div>
+                <label style={uiStyles.label}>รูปภาพพัสดุ (อัปโหลดจากไฟล์)</label>
+                <input type="file" accept="image/*" onChange={handleItemImageFileUpload} style={{ fontSize: '12px' }} />
+                {editingItem.image && (
+                  <div style={{ marginTop: '8px' }}>
+                    <img src={editingItem.image} alt="พัสดุ" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }} />
+                  </div>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <button type="submit" style={{ ...uiStyles.submitBtn, flex: 1 }}>บันทึกข้อมูล</button>
+                <button type="button" onClick={() => setEditingItem(null)} style={{ ...uiStyles.submitBtn, flex: 1, background: '#f1f5f9', color: '#475569', boxShadow: 'none' }}>ยกเลิก</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: EDIT USER */}
       {editingUser && (
-        <div style={uiStyles.modalOverlay} onClick={() => setEditingUser(null)}>
-          <div style={uiStyles.modalContent} className="modal-content-responsive" onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '800', color: '#0f172a' }}>✏️ แก้ไขข้อมูลผู้ใช้งาน</h3>
+        <div style={uiStyles.modalOverlay}>
+          <div style={uiStyles.modalContent} className="modal-content-responsive">
+            <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '800', color: '#0f172a' }}>✏️ แก้ไขข้อมูลส่วนตัว / บุคลากร</h3>
             <form onSubmit={handleSaveUserEdit} style={uiStyles.formStack}>
               <div>
                 <label style={uiStyles.label}>รหัสประจำตัว</label>
@@ -1775,80 +1742,80 @@ export default function App() {
               </div>
               <div>
                 <label style={uiStyles.label}>เบอร์โทรศัพท์</label>
-                <input type="text" value={editingUser.phone || ''} onChange={(e) => setEditingUser({ ...editingUser, phone: e.target.value })} style={uiStyles.input} />
+                <input type="text" value={editingUser.phone} onChange={(e) => setEditingUser({ ...editingUser, phone: e.target.value })} style={uiStyles.input} required />
               </div>
               <div>
                 <label style={uiStyles.label}>แผนกวิชา</label>
-                <select value={editingUser.department || ''} onChange={(e) => setEditingUser({ ...editingUser, department: e.target.value })} style={uiStyles.input}>
+                <select value={editingUser.department} onChange={(e) => setEditingUser({ ...editingUser, department: e.target.value })} style={uiStyles.input}>
                   {DEPARTMENTS.map((dept) => (
                     <option key={dept} value={dept}>{dept}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label style={uiStyles.label}>รหัสผ่านใหม่ (หากต้องการเปลี่ยน)</label>
-                <input type="password" placeholder="กรอกรหัสผ่านใหม่..." value={editingUser.password || ''} onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })} style={uiStyles.input} />
+                <label style={uiStyles.label}>รหัสผ่านใหม่ (หากไม่เปลี่ยนให้เว้นว่างไว้)</label>
+                <input type="password" placeholder="••••••••" value={editingUser.password} onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })} style={uiStyles.input} />
               </div>
-
-              <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
                 <button type="submit" style={{ ...uiStyles.submitBtn, flex: 1 }}>บันทึกข้อมูล</button>
-                <button type="button" onClick={() => setEditingUser(null)} style={{ ...uiStyles.editBtn, padding: '12px' }}>ยกเลิก</button>
+                <button type="button" onClick={() => setEditingUser(null)} style={{ ...uiStyles.submitBtn, flex: 1, background: '#f1f5f9', color: '#475569', boxShadow: 'none' }}>ยกเลิก</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Edit Item / Add Item Modal */}
-      {editingItem && (
-        <div style={uiStyles.modalOverlay} onClick={() => setEditingItem(null)}>
-          <div style={uiStyles.modalContent} className="modal-content-responsive" onClick={(e) => e.stopPropagation()}>
-            <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '800', color: '#0f172a' }}>
-              {isNewItem ? '➕ เพิ่มรายการพัสดุใหม่' : '✏️ แก้ไขข้อมูลพัสดุ / แนบรูปภาพ'}
-            </h3>
-            <form onSubmit={handleSaveItemEdit} style={uiStyles.formStack}>
-              <div>
-                <label style={uiStyles.label}>รหัสพัสดุ</label>
-                <input type="text" value={editingItem.code} onChange={(e) => setEditingItem({ ...editingItem, code: e.target.value })} style={uiStyles.input} required />
-              </div>
-              <div>
-                <label style={uiStyles.label}>ชื่อพัสดุ (หากระบุขนาดในวงเล็บ ระบบจะจัดกลุ่มให้อัตโนมัติ)</label>
-                <input type="text" placeholder="เช่น กระดาษถ่ายเอกสาร (A4)" value={editingItem.name} onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })} style={uiStyles.input} required />
-              </div>
-              <div>
-                <label style={uiStyles.label}>หมวดหมู่</label>
-                <select value={editingItem.category} onChange={(e) => setEditingItem({ ...editingItem, category: e.target.value })} style={uiStyles.input}>
-                  {CATEGORIES_LIST.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div>
-                  <label style={uiStyles.label}>ราคาต่อหน่วย (บาท)</label>
-                  <input type="number" step="0.01" value={editingItem.price} onChange={(e) => setEditingItem({ ...editingItem, price: e.target.value })} style={uiStyles.input} />
-                </div>
-                <div>
-                  <label style={uiStyles.label}>จำนวนในสต็อก</label>
-                  <input type="number" value={editingItem.stock} onChange={(e) => setEditingItem({ ...editingItem, stock: e.target.value })} style={uiStyles.input} required />
-                </div>
-              </div>
-              <div>
-                <label style={uiStyles.label}>รูปภาพพัสดุ (อัปโหลดจากเครื่อง)</label>
-                <input type="file" accept="image/*" onChange={handleItemImageFileUpload} style={uiStyles.input} />
-                {editingItem.image && (
-                  <div style={{ marginTop: '10px', textAlign: 'center' }}>
-                    <img src={editingItem.image} alt="ตัวอย่าง" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '12px', border: '1px solid #e2e8f0' }} />
-                  </div>
-                )}
-              </div>
-
-              <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
-                <button type="submit" style={{ ...uiStyles.submitBtn, flex: 1 }}>บันทึกข้อมูล</button>
-                <button type="button" onClick={() => setEditingItem(null)} style={{ ...uiStyles.editBtn, padding: '12px' }}>ยกเลิก</button>
-              </div>
-            </form>
+      {/* DRAWER: CART */}
+      {isCartOpen && (
+        <div style={uiStyles.cartDrawer} className="cart-drawer-responsive">
+          <div style={uiStyles.drawerHeader}>
+            <div style={{ fontSize: '16px', fontWeight: '800', color: '#0f172a' }}>🛒 ตะกร้าขอเบิกพัสดุ</div>
+            <button onClick={() => setIsCartOpen(false)} style={{ border: 'none', background: 'transparent', fontSize: '20px', cursor: 'pointer', color: '#64748b' }}>✕</button>
           </div>
+
+          <div style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
+            {cart.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px 20px', color: '#94a3b8' }}>
+                <span style={{ fontSize: '48px', display: 'block', marginBottom: '12px' }}>🛒</span>
+                ยังไม่มีรายการพัสดุในตะกร้า
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {cart.map((item) => (
+                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: '#f8fafc', borderRadius: '14px', border: '1px solid #f1f5f9' }}>
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a' }}>{item.name}</div>
+                      <div style={{ fontSize: '11px', color: '#0284c7', fontWeight: '600' }}>{item.code}</div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <button onClick={() => updateCartQty(item.id, -1)} style={uiStyles.qtyBtn}>-</button>
+                      <span style={{ fontSize: '13px', fontWeight: '700' }}>{item.qty}</span>
+                      <button onClick={() => updateCartQty(item.id, 1)} style={uiStyles.qtyBtn}>+</button>
+                    </div>
+                  </div>
+                ))}
+
+                <div style={{ marginTop: '20px' }}>
+                  <label style={uiStyles.label}>วัตถุประสงค์ในการเบิกใช้งาน *</label>
+                  <textarea
+                    rows="3"
+                    placeholder="เช่น ใช้สำหรับการจัดกิจกรรมการเรียนการสอนวิชาคอมพิวเตอร์..."
+                    value={purpose}
+                    onChange={(e) => setPurpose(e.target.value)}
+                    style={{ ...uiStyles.input, resize: 'none' }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {cart.length > 0 && (
+            <div style={{ padding: '20px', borderTop: '1px solid #f1f5f9', background: '#ffffff' }}>
+              <button onClick={handleCheckoutCart} style={uiStyles.submitBtn}>
+                ส่งรายการขอเบิกพัสดุ 📩
+              </button>
+            </div>
+          )}
         </div>
       )}
     </>
