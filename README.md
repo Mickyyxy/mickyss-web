@@ -19,10 +19,10 @@
 
 3. ความต้องการของระบบ (System Requirements)ก่อนเริ่มการติดตั้ง โปรดตรวจสอบว่าเครื่องคอมพิวเตอร์ของคุณติดตั้งซอฟต์แวร์ดังต่อไปนี้:Node.js: เวอร์ชัน 18.0.0 ขึ้นไป (แนะนำ v20.x LTS)Package Manager: npm (ติดตั้งมาพร้อม Node.js) หรือ pnpm / yarnWeb Browser: Google Chrome, Microsoft Edge, Safari หรือ Firefox4. ขั้นตอนการติดตั้งอย่างละเอียด (Step-by-Step Installation)
 
-ขั้นตอนที่ 1: สร้างโปรเจกต์ React ด้วย Viteเปิด Terminal / Command Prompt แล้วรันคำสั่งดังต่อไปนี้:Bash# สร้างโปรเจกต์ React ด้วย Vite
+# ขั้นตอนที่ 1: สร้างโปรเจกต์ React ด้วย Viteเปิด Terminal / Command Prompt แล้วรันคำสั่งดังต่อไปนี้:Bash# สร้างโปรเจกต์ React ด้วย Vite
 npm create vite@latest college-inventory-system -- --template react
 
-# เข้าสู่โฟลเดอร์โปรเจกต์
+เข้าสู่โฟลเดอร์โปรเจกต์
 cd college-inventory-system
 
 ขั้นตอนที่ 2: ติดตั้ง DependenciesBashnpm install
