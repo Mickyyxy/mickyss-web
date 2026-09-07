@@ -1,3 +1,7 @@
+<?php
+// สามารถเขียนโค้ด PHP สำหรับ Session, Config หรือ API Response ตรงนี้ได้
+header('Content-Type: text/html; charset=utf-8');
+?>
 <!doctype html>
 <html lang="en">
   <head>
@@ -8,6 +12,8 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- ดึงไฟล์ JS ของ React / SPA มาทำงาน -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

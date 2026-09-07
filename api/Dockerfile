@@ -1,7 +1,11 @@
-FROM php:8.2-fpm-alpine
+FROM php:8.2-apache
 
-# ติดตั้ง Extension สำหรับเชื่อมต่อ MySQL
-RUN docker-php-ext-install pdo pdo_mysql mysqli
+RUN a2enmod rewrite
 
-WORKDIR /var/www/html/api
-COPY . .
+# คัดลอกไฟล์ทั้งหมดลง Web Root
+COPY . /var/www/html/
+
+# กำหนดให้ Apache เรียก index.php เป็นหน้าแรกเสมอ
+RUN echo "DirectoryIndex index.php index.html" > /var/www/html/.htaccess
+
+EXPOSE 80
