@@ -217,13 +217,17 @@ const CATEGORIES_LIST = [
 ];
 
 const DEPARTMENTS = [
-  "เทคโนโลยีสารสนเทศ",
-  "การบัญชี",
-  "การตลาด",
-  "การจัดการ",
-  "สามัญสัมพันธ์",
-  "ช่างไฟฟ้ากำลัง",
-  "ช่างยนต์"
+  "สาขาการบัญชี",
+  "สาขาการตลาด",
+  "สาขาภาษาต่างประเทศธุรกิจบริหาร",
+  "สาขาภาษาและการจัดการธุรกิจระหว่างประเทศ",
+  "สาขาโลจิสติกส์",
+  "สาขาการจัดการโลจิสติกส์และซัพพลายเชน",
+  "สาขาดิจิทัลกราฟิก",
+  "สาขาเทคโนโลยีสารสนเทศ",
+  "สาขาเทคโนโลยีธุรกิจดิจิทัล",
+  "สาขาการท่องเที่ยว",
+  "สาขาการจัดการธุรกิจค้าปลีก"
 ];
 
 // Helper Function: ดึงข้อความในวงเล็บมารวมเป็นกลุ่มสินค้าเดียวกันแบบอัตโนมัติ
@@ -733,6 +737,7 @@ const TikTokProductCard = ({ productGroup, cart, onAddToCart }) => {
   );
 };
 
+// คอมโพเนนต์สำหรับแสดงเอกสารสั่งพิมพ์ / ออก PDF
 const PrintableReceipt = ({ request, onClose }) => {
   const formatThaiDate = (dateString) => {
     if (!dateString) return '';
@@ -770,7 +775,7 @@ const PrintableReceipt = ({ request, onClose }) => {
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px', fontSize: '13px' }}>
           <div>
             <div><strong>ชื่อผู้ขอเบิก:</strong> {request.teacherName || request.fullname}</div>
-            <div><strong>แผนกวิชา:</strong> {request.department || 'เทคโนโลยีสารสนเทศ'}</div>
+            <div><strong>แผนกวิชา:</strong> {request.department || DEPARTMENTS[0]}</div>
             <div><strong>เบอร์โทรศัพท์:</strong> {request.phone || '-'}</div>
           </div>
           <div><strong>วันที่ขอเบิก:</strong> {formatThaiDate(request.date || request.created_at)}</div>
@@ -811,7 +816,7 @@ const PrintableReceipt = ({ request, onClose }) => {
           <div>
             <p>ลงชื่อ......................................................ผู้ขอเบิก</p>
             <p>({request.teacherName || request.fullname})</p>
-            <p>ตำแหน่ง: ครูประจำวิชา ({request.department || 'เทคโนโลยีสารสนเทศ'})</p>
+            <p>ตำแหน่ง: ครูประจำวิชา ({request.department || DEPARTMENTS[0]})</p>
           </div>
           <div>
             <p>ลงชื่อ......................................................ผู้จ่ายพัสดุ</p>
@@ -820,7 +825,7 @@ const PrintableReceipt = ({ request, onClose }) => {
           </div>
         </div>
 
-        <div style={{ marginTop: '40px', textAlign: 'center', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+        <div style={{ marginTop: '40px', textAlign: 'center', display: 'flex', gap: '10px', justifyContent: 'center' }} className="no-print">
           <button onClick={() => window.print()} style={{ border: 'none', padding: '10px 20px', background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)', color: '#fff', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>🖨️ สั่งพิมพ์เอกสาร / บันทึก PDF</button>
           <button onClick={onClose} style={{ border: '1px solid #ccc', padding: '10px 20px', background: '#fff', color: '#333', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>ปิดหน้าต่าง</button>
         </div>
@@ -841,7 +846,7 @@ export default function App() {
   const [logoInput, setLogoInput] = useState('');
 
   const [users, setUsers] = useState([
-    { id: 'A1', password: '', name: 'อ.สมชาย ใจดี', role: 'teacher', phone: '081-999-8888', department: 'เทคโนโลยีสารสนเทศ' },
+    { id: 'A1', password: '', name: 'อ.สมชาย ใจดี', role: 'teacher', phone: '081-999-8888', department: DEPARTMENTS[7] },
     { id: 'A-0001', password: 'adminpassword', name: 'เจ้าหน้าที่งานพัสดุ', role: 'admin', phone: '089-111-2222', department: 'งานพัสดุ' },
   ]);
 
@@ -854,7 +859,7 @@ export default function App() {
   const [regName, setRegName] = useState('');
   const [regRole, setRegRole] = useState('teacher');
   const [regPhone, setRegPhone] = useState('');
-  const [regDept, setRegDept] = useState('เทคโนโลยีสารสนเทศ');
+  const [regDept, setRegDept] = useState(DEPARTMENTS[0]);
 
   const [adminTab, setAdminTab] = useState('requests');
   const [editingUser, setEditingUser] = useState(null);
@@ -866,6 +871,7 @@ export default function App() {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isBurgerOpen, setIsBurgerOpen] = useState(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [purpose, setPurpose] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ทั้งหมด');
   const [search, setSearch] = useState('');
@@ -877,7 +883,7 @@ export default function App() {
     {
       id: 101,
       teacherName: 'อ.สมชาย ใจดี',
-      department: 'เทคโนโลยีสารสนเทศ',
+      department: DEPARTMENTS[7],
       phone: '081-999-8888',
       purpose: 'ใช้สำหรับการเรียนการสอนวิชาการจัดการสำนักงาน',
       items: [{ id: 65, name: 'กระดาษถ่ายเอกสาร (A4)', qty: 2 }, { id: 95, name: 'ปากกาไวท์บอร์ดสีน้ำเงิน (ปากตัด)', qty: 5 }],
@@ -927,7 +933,7 @@ export default function App() {
     setRegPassword('');
     setRegName('');
     setRegPhone('');
-    setRegDept('เทคโนโลยีสารสนเทศ');
+    setRegDept(DEPARTMENTS[0]);
   };
 
   const handleLogout = () => {
@@ -935,6 +941,7 @@ export default function App() {
     setCart([]);
     setIsCartOpen(false);
     setIsBurgerOpen(false);
+    setIsHistoryModalOpen(false);
   };
 
   const handleOpenUserEdit = (user) => {
@@ -1083,7 +1090,7 @@ export default function App() {
     const newRequest = {
       id: Date.now(),
       teacherName: currentUser.name,
-      department: currentUser.department || 'ไม่ระบุ',
+      department: currentUser.department || DEPARTMENTS[0],
       phone: currentUser.phone || '-',
       purpose,
       items: cart.map((c) => ({ id: c.id, name: c.name, qty: c.qty })),
@@ -1136,6 +1143,10 @@ export default function App() {
     const matchesCategory = selectedCategory === 'ทั้งหมด' || group.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  const userRequestsHistory = requests.filter(
+    (r) => r.teacherName === currentUser?.name
+  );
 
   const totalCartCount = cart.reduce((sum, item) => sum + item.qty, 0);
 
@@ -1356,7 +1367,7 @@ export default function App() {
                   <input type="text" placeholder="089-123-4567" value={regPhone} onChange={(e) => setRegPhone(e.target.value)} style={uiStyles.input} required />
                 </div>
                 <div>
-                  <label style={uiStyles.label}>แผนกวิชา</label>
+                  <label style={uiStyles.label}>สาขาวิชา</label>
                   <select value={regDept} onChange={(e) => setRegDept(e.target.value)} style={uiStyles.input}>
                     {DEPARTMENTS.map((dept) => (
                       <option key={dept} value={dept}>{dept}</option>
@@ -1404,6 +1415,22 @@ export default function App() {
                     <div style={{ fontSize: '11px', color: '#0284c7', fontWeight: '700' }}>{currentUser.department || currentUser.role}</div>
                   </div>
 
+                  {currentUser.role === 'teacher' && (
+                    <button
+                      onClick={() => {
+                        setIsHistoryModalOpen(true);
+                        setIsBurgerOpen(false);
+                      }}
+                      style={{ ...uiStyles.menuItemBtn, background: '#ffffff', color: '#334155' }}
+                      className="hover-menu-btn"
+                    >
+                      <span>📜 ประวัติการเบิก</span>
+                      <span style={{ fontSize: '11px', background: '#e0f2fe', color: '#0284c7', padding: '2px 8px', borderRadius: '10px', fontWeight: 'bold' }}>
+                        {userRequestsHistory.length}
+                      </span>
+                    </button>
+                  )}
+
                   <button onClick={() => handleOpenUserEdit(currentUser)} style={{ ...uiStyles.menuItemBtn, background: '#ffffff', color: '#334155' }} className="hover-menu-btn">
                     <span>✏️ แก้ไขข้อมูลส่วนตัว</span>
                   </button>
@@ -1438,7 +1465,7 @@ export default function App() {
                       👥 จัดการผู้ใช้ ({users.length})
                     </button>
                     <button onClick={() => setAdminTab('settings')} style={{ ...uiStyles.tabBtn, background: adminTab === 'settings' ? '#0284c7' : 'transparent', color: adminTab === 'settings' ? '#ffffff' : '#64748b' }}>
-                      🏛️ ตราวิทยาลัย
+                      ⚙️ ตั้งค่าระบบ
                     </button>
                   </div>
 
@@ -1454,52 +1481,49 @@ export default function App() {
                     <table style={uiStyles.table} className="table-responsive">
                       <thead>
                         <tr style={uiStyles.thRow}>
-                          <th style={uiStyles.th}>รหัส</th>
-                          <th style={uiStyles.th}>ผู้ขอเบิก</th>
-                          <th style={uiStyles.th}>แผนกวิชา</th>
-                          <th style={uiStyles.th}>รายการ</th>
+                          <th style={uiStyles.th}>ผู้เบิก / แผนก</th>
                           <th style={uiStyles.th}>วัตถุประสงค์</th>
-                          <th style={uiStyles.th}>วันที่</th>
+                          <th style={uiStyles.th}>รายการพัสดุที่เบิก</th>
+                          <th style={uiStyles.th}>วันที่ขอเบิก</th>
                           <th style={uiStyles.th}>สถานะ</th>
                           <th style={{ ...uiStyles.th, textAlign: 'right' }}>จัดการ</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {requests.map((req) => (
-                          <tr key={req.id} style={uiStyles.tr} className="tr-hover">
-                            <td style={{ ...uiStyles.td, fontWeight: 'bold' }}>#{req.id}</td>
+                        {requests.map((r) => (
+                          <tr key={r.id} style={uiStyles.tr} className="tr-hover">
                             <td style={uiStyles.td}>
-                              <div style={{ fontWeight: '700', color: '#0f172a' }}>{req.teacherName}</div>
-                              <div style={{ fontSize: '11px', color: '#64748b' }}>📞 {req.phone}</div>
+                              <strong style={{ color: '#0f172a' }}>{r.teacherName}</strong>
+                              <div style={{ fontSize: '11px', color: '#64748b' }}>{r.department}</div>
                             </td>
-                            <td style={uiStyles.td}>{req.department}</td>
+                            <td style={{ ...uiStyles.td, maxWidth: '200px' }}>{r.purpose}</td>
                             <td style={uiStyles.td}>
-                              {req.items ? req.items.map((it, idx) => (
-                                <div key={idx} style={{ fontSize: '12px' }}>
-                                  • {it.name} <strong style={{ color: '#0284c7' }}>x{it.qty}</strong>
-                                </div>
-                              )) : (
-                                <div>• {req.equipment_name} <strong>x{req.qty}</strong></div>
-                              )}
+                              {r.items.map((it, idx) => (
+                                <div key={idx} style={{ fontSize: '12px' }}>• {it.name} <strong style={{ color: '#0284c7' }}>x{it.qty}</strong></div>
+                              ))}
                             </td>
-                            <td style={{ ...uiStyles.td, maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {req.purpose}
-                            </td>
-                            <td style={uiStyles.td}>{req.date}</td>
+                            <td style={uiStyles.td}>{r.date}</td>
                             <td style={uiStyles.td}>
-                              {req.status === 'pending' && <span style={{ padding: '4px 10px', borderRadius: '12px', background: '#fef3c7', color: '#b45309', fontSize: '11px', fontWeight: 'bold' }}>⏳ รออนุมัติ</span>}
-                              {req.status === 'approved' && <span style={{ padding: '4px 10px', borderRadius: '12px', background: '#dcfce7', color: '#15803d', fontSize: '11px', fontWeight: 'bold' }}>✅ อนุมัติแล้ว</span>}
-                              {req.status === 'rejected' && <span style={{ padding: '4px 10px', borderRadius: '12px', background: '#ffe4e6', color: '#be123c', fontSize: '11px', fontWeight: 'bold' }}>❌ ปฏิเสธ</span>}
+                              <span style={{
+                                padding: '4px 10px',
+                                borderRadius: '12px',
+                                fontSize: '11px',
+                                fontWeight: 'bold',
+                                background: r.status === 'approved' ? '#dcfce7' : r.status === 'rejected' ? '#fee2e2' : '#fef3c7',
+                                color: r.status === 'approved' ? '#16a34a' : r.status === 'rejected' ? '#dc2626' : '#d97706'
+                              }}>
+                                {r.status === 'approved' ? 'อนุมัติแล้ว' : r.status === 'rejected' ? 'ปฏิเสธ' : 'รออนุมัติ'}
+                              </span>
                             </td>
                             <td style={{ ...uiStyles.td, textAlign: 'right' }}>
                               <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
-                                {req.status === 'pending' && (
+                                {r.status === 'pending' && (
                                   <>
-                                    <button onClick={() => handleApproveRequest(req)} style={uiStyles.approveBtn}>อนุมัติ</button>
-                                    <button onClick={() => handleRejectRequest(req.id)} style={uiStyles.rejectBtn}>ปฏิเสธ</button>
+                                    <button onClick={() => handleApproveRequest(r)} style={uiStyles.approveBtn}>อนุมัติ</button>
+                                    <button onClick={() => handleRejectRequest(r.id)} style={uiStyles.rejectBtn}>ปฏิเสธ</button>
                                   </>
                                 )}
-                                <button onClick={() => setSelectedPrintRequest(req)} style={uiStyles.printBtn}>🖨️ ใบเบิก</button>
+                                <button onClick={() => setSelectedPrintRequest(r)} style={uiStyles.printBtn}>🖨️ ปริ้น PDF</button>
                               </div>
                             </td>
                           </tr>
@@ -1514,29 +1538,30 @@ export default function App() {
                     <table style={uiStyles.table} className="table-responsive">
                       <thead>
                         <tr style={uiStyles.thRow}>
-                          <th style={uiStyles.th}>รูปภาพ</th>
-                          <th style={uiStyles.th}>รหัสพัสดุ</th>
-                          <th style={uiStyles.th}>ชื่อพัสดุ</th>
+                          <th style={uiStyles.th}>รหัส</th>
+                          <th style={uiStyles.th}>ชื่อรายการพัสดุ</th>
                           <th style={uiStyles.th}>หมวดหมู่</th>
                           <th style={uiStyles.th}>ราคา/หน่วย</th>
-                          <th style={uiStyles.th}>จำนวนคงเหลือ</th>
+                          <th style={uiStyles.th}>คงเหลือ</th>
                           <th style={{ ...uiStyles.th, textAlign: 'right' }}>จัดการ</th>
                         </tr>
                       </thead>
                       <tbody>
                         {inventory.map((item) => (
                           <tr key={item.id} style={uiStyles.tr} className="tr-hover">
+                            <td style={uiStyles.td}><span style={uiStyles.codeBadge}>{item.code}</span></td>
                             <td style={uiStyles.td}>
-                              {item.image ? (
-                                <img src={item.image} alt={item.name} style={{ width: '36px', height: '36px', objectFit: 'cover', borderRadius: '8px' }} />
-                              ) : (
-                                <span style={{ fontSize: '24px' }}>{item.icon}</span>
-                              )}
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                {item.image ? (
+                                  <img src={item.image} alt={item.name} style={{ width: '32px', height: '32px', borderRadius: '8px', objectFit: 'cover' }} />
+                                ) : (
+                                  <span>{item.icon}</span>
+                                )}
+                                <strong style={{ color: '#0f172a' }}>{item.name}</strong>
+                              </div>
                             </td>
-                            <td style={{ ...uiStyles.td, fontWeight: '700', color: '#0284c7' }}>{item.code}</td>
-                            <td style={{ ...uiStyles.td, fontWeight: '700' }}>{item.name}</td>
                             <td style={uiStyles.td}>{item.category}</td>
-                            <td style={uiStyles.td}>{item.price > 0 ? `${item.price} ฿` : 'ไม่ระบุ'}</td>
+                            <td style={uiStyles.td}>{item.price > 0 ? `${item.price} ฿` : '-'}</td>
                             <td style={uiStyles.td}><StockBadge stock={item.stock} /></td>
                             <td style={{ ...uiStyles.td, textAlign: 'right' }}>
                               <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
@@ -1556,10 +1581,10 @@ export default function App() {
                     <table style={uiStyles.table} className="table-responsive">
                       <thead>
                         <tr style={uiStyles.thRow}>
-                          <th style={uiStyles.th}>รหัสบุคลากร</th>
+                          <th style={uiStyles.th}>รหัสประจำตัว</th>
                           <th style={uiStyles.th}>ชื่อ-นามสกุล</th>
-                          <th style={uiStyles.th}>สิทธิ์</th>
-                          <th style={uiStyles.th}>แผนกวิชา</th>
+                          <th style={uiStyles.th}>ตำแหน่ง/สิทธิ์</th>
+                          <th style={uiStyles.th}>สังกัด / สาขาวิชา</th>
                           <th style={uiStyles.th}>เบอร์โทรศัพท์</th>
                           <th style={{ ...uiStyles.th, textAlign: 'right' }}>จัดการ</th>
                         </tr>
@@ -1567,17 +1592,24 @@ export default function App() {
                       <tbody>
                         {users.map((u) => (
                           <tr key={u.id} style={uiStyles.tr} className="tr-hover">
-                            <td style={{ ...uiStyles.td, fontWeight: '700', color: '#0284c7' }}>{u.id}</td>
-                            <td style={{ ...uiStyles.td, fontWeight: '700' }}>{u.name}</td>
+                            <td style={uiStyles.td}><strong>{u.id}</strong></td>
+                            <td style={uiStyles.td}>{u.name}</td>
                             <td style={uiStyles.td}>
-                              <span style={{ padding: '4px 10px', borderRadius: '12px', background: u.role === 'admin' ? '#f3e8ff' : '#e0f2fe', color: u.role === 'admin' ? '#7e22ce' : '#0369a1', fontSize: '11px', fontWeight: 'bold' }}>
-                                {u.role === 'admin' ? '⚙️ เจ้าหน้าที่' : '👨‍🏫 อาจารย์'}
+                              <span style={{
+                                padding: '4px 10px',
+                                borderRadius: '8px',
+                                fontSize: '11px',
+                                fontWeight: 'bold',
+                                background: u.role === 'admin' ? '#f3e8ff' : '#e0f2fe',
+                                color: u.role === 'admin' ? '#7e22ce' : '#0369a1'
+                              }}>
+                                {u.role === 'admin' ? 'เจ้าหน้าที่พัสดุ' : 'ครูผู้สอน'}
                               </span>
                             </td>
-                            <td style={uiStyles.td}>{u.department || '-'}</td>
-                            <td style={uiStyles.td}>{u.phone || '-'}</td>
+                            <td style={uiStyles.td}>{u.department}</td>
+                            <td style={uiStyles.td}>{u.phone}</td>
                             <td style={{ ...uiStyles.td, textAlign: 'right' }}>
-                              <button onClick={() => handleOpenUserEdit(u)} style={uiStyles.editBtn}>✏️ แก้ไข</button>
+                              <button onClick={() => handleOpenUserEdit(u)} style={uiStyles.editBtn}>✏️ แก้ไขข้อมูล</button>
                             </td>
                           </tr>
                         ))}
@@ -1587,29 +1619,28 @@ export default function App() {
                 )}
 
                 {adminTab === 'settings' && (
-                  <div style={{ ...uiStyles.tableCard, maxWidth: '500px', margin: '0 auto' }} className="table-card-responsive">
-                    <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '800' }}>🏛️ ตั้งค่าตราวิทยาลัย</h3>
-                    
+                  <div style={{ ...uiStyles.tableCard, maxWidth: '600px' }}>
+                    <h3 style={{ marginBottom: '20px', color: '#0f172a' }}>🏛️ ตั้งค่าตราวิทยาลัย</h3>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      <div style={{ textAlign: 'center', padding: '20px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                        <div style={{ width: '80px', height: '80px', margin: '0 auto 10px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                      <div>
+                        <label style={uiStyles.label}>ตราปัจจุบัน:</label>
+                        <div style={{ width: '80px', height: '80px', border: '1px dashed #cbd5e1', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px' }}>
                           {renderCollegeLogo(collegeLogo, '40px')}
                         </div>
-                        <div style={{ fontSize: '12px', color: '#64748b' }}>ตัวอย่างตราวิทยาลัยในปัจจุบัน</div>
                       </div>
 
                       <div>
-                        <label style={uiStyles.label}>อัปโหลดไฟล์ตราวิทยาลัย (จากเครื่อง)</label>
-                        <input type="file" accept="image/*" onChange={handleLogoFileUpload} style={{ fontSize: '12px' }} />
+                        <label style={uiStyles.label}>อัปโหลดไฟล์ตราวิทยาลัยใหม่ (รูปภาพ)</label>
+                        <input type="file" accept="image/*" onChange={handleLogoFileUpload} style={uiStyles.input} />
                       </div>
 
                       <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '12px' }}>— หรือ —</div>
 
                       <div>
-                        <label style={uiStyles.label}>ระบุ URL รูปภาพ หรือ Emoji</label>
+                        <label style={uiStyles.label}>ระบุ URL หรือ Emoji ตราวิทยาลัย</label>
                         <div style={{ display: 'flex', gap: '8px' }}>
-                          <input type="text" placeholder="https://... หรือ 🏫" value={logoInput} onChange={(e) => setLogoInput(e.target.value)} style={uiStyles.input} />
-                          <button onClick={handleSaveLogoUrl} style={uiStyles.primaryBtn}>บันทึก</button>
+                          <input type="text" placeholder="https://example.com/logo.png หรือ 🏛️" value={logoInput} onChange={(e) => setLogoInput(e.target.value)} style={uiStyles.input} />
+                          <button onClick={handleSaveLogoUrl} style={{ ...uiStyles.primaryBtn, whiteSpace: 'nowrap' }}>บันทึก URL</button>
                         </div>
                       </div>
                     </div>
@@ -1619,51 +1650,41 @@ export default function App() {
             ) : (
               <div>
                 <div style={uiStyles.heroBanner} className="hero-banner-responsive">
-                  <div>
-                    <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '800', color: '#0f172a' }}>
-                      ยินดีต้อนรับ, {currentUser.name} 👋
-                    </h2>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#0284c7', fontWeight: '600' }}>
-                      เลือกวัสดุอุปกรณ์ที่ต้องการเบิกใช้สำหรับการเรียนการสอนได้ทันที
-                    </p>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }} className="tab-group-responsive">
+                    {categories.map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => setSelectedCategory(cat)}
+                        style={{
+                          padding: '8px 16px',
+                          border: 'none',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: '700',
+                          cursor: 'pointer',
+                          background: selectedCategory === cat ? '#0284c7' : '#ffffff',
+                          color: selectedCategory === cat ? '#ffffff' : '#475569',
+                          boxShadow: selectedCategory === cat ? '0 4px 12px rgba(2, 132, 199, 0.3)' : '0 2px 6px rgba(0,0,0,0.02)'
+                        }}
+                      >
+                        {cat}
+                      </button>
+                    ))}
                   </div>
+
                   <input
                     type="text"
-                    placeholder="🔍 ค้นหาชื่อพัสดุ หรือ รหัสสินค้า..."
+                    placeholder="🔍 ค้นหาพัสดุ หรือ รหัสพัสดุ..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     style={uiStyles.searchInput}
                   />
                 </div>
 
-                <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '16px', marginBottom: '20px' }} className="tab-group-responsive">
-                  {categories.map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => setSelectedCategory(cat)}
-                      style={{
-                        padding: '8px 16px',
-                        borderRadius: '12px',
-                        border: 'none',
-                        fontSize: '12px',
-                        fontWeight: '700',
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap',
-                        background: selectedCategory === cat ? '#0284c7' : '#ffffff',
-                        color: selectedCategory === cat ? '#ffffff' : '#64748b',
-                        boxShadow: selectedCategory === cat ? '0 4px 12px rgba(2, 132, 199, 0.25)' : '0 2px 6px rgba(0,0,0,0.03)',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
-
                 <div style={uiStyles.equipmentGrid} className="equipment-grid-responsive">
-                  {filteredProducts.map((group) => (
+                  {filteredProducts.map((group, index) => (
                     <TikTokProductCard
-                      key={group.baseName}
+                      key={index}
                       productGroup={group}
                       cart={cart}
                       onAddToCart={addToCart}
@@ -1676,20 +1697,58 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL: EDIT/ADD ITEM */}
+      {/* MODAL: แก้ไขข้อมูลผู้ใช้ */}
+      {editingUser && (
+        <div style={uiStyles.modalOverlay}>
+          <div style={uiStyles.modalContent} className="modal-content-responsive">
+            <h3 style={{ margin: '0 0 20px 0', color: '#0f172a' }}>✏️ แก้ไขข้อมูลผู้ใช้งาน</h3>
+            <form onSubmit={handleSaveUserEdit} style={uiStyles.formStack}>
+              <div>
+                <label style={uiStyles.label}>รหัสประจำตัวบุคลากร</label>
+                <input type="text" value={editingUser.id} onChange={(e) => setEditingUser({ ...editingUser, id: e.target.value })} style={uiStyles.input} required />
+              </div>
+              <div>
+                <label style={uiStyles.label}>ชื่อ-นามสกุล</label>
+                <input type="text" value={editingUser.name} onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })} style={uiStyles.input} required />
+              </div>
+              <div>
+                <label style={uiStyles.label}>เบอร์โทรศัพท์</label>
+                <input type="text" value={editingUser.phone || ''} onChange={(e) => setEditingUser({ ...editingUser, phone: e.target.value })} style={uiStyles.input} />
+              </div>
+              <div>
+                <label style={uiStyles.label}>สังกัด / สาขาวิชา</label>
+                <select value={editingUser.department || DEPARTMENTS[0]} onChange={(e) => setEditingUser({ ...editingUser, department: e.target.value })} style={uiStyles.input}>
+                  {DEPARTMENTS.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label style={uiStyles.label}>รหัสผ่าน</label>
+                <input type="text" value={editingUser.password || ''} onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })} style={uiStyles.input} />
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <button type="submit" style={{ ...uiStyles.submitBtn, flex: 1 }}>บันทึกข้อมูล</button>
+                <button type="button" onClick={() => setEditingUser(null)} style={{ ...uiStyles.editBtn, padding: '12px 20px' }}>ยกเลิก</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: เพิ่ม/แก้ไขพัสดุ */}
       {editingItem && (
         <div style={uiStyles.modalOverlay}>
           <div style={uiStyles.modalContent} className="modal-content-responsive">
-            <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '800', color: '#0f172a' }}>
-              {isNewItem ? '✨ เพิ่มรายการพัสดุใหม่' : '✏️ แก้ไขข้อมูลพัสดุ'}
-            </h3>
+            <h3 style={{ margin: '0 0 20px 0', color: '#0f172a' }}>{isNewItem ? '✨ เพิ่มรายการพัสดุใหม่' : '✏️ แก้ไขข้อมูลพัสดุ'}</h3>
             <form onSubmit={handleSaveItemEdit} style={uiStyles.formStack}>
               <div>
                 <label style={uiStyles.label}>รหัสพัสดุ</label>
                 <input type="text" value={editingItem.code} onChange={(e) => setEditingItem({ ...editingItem, code: e.target.value })} style={uiStyles.input} required />
               </div>
               <div>
-                <label style={uiStyles.label}>ชื่อพัสดุ</label>
+                <label style={uiStyles.label}>ชื่อรายการพัสดุ</label>
                 <input type="text" value={editingItem.name} onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })} style={uiStyles.input} required />
               </div>
               <div>
@@ -1700,122 +1759,157 @@ export default function App() {
                   ))}
                 </select>
               </div>
-              <div>
-                <label style={uiStyles.label}>ราคาต่อหน่วย (บาท)</label>
-                <input type="number" step="0.01" value={editingItem.price} onChange={(e) => setEditingItem({ ...editingItem, price: e.target.value })} style={uiStyles.input} />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={uiStyles.label}>ราคาต่อหน่วย (บาท)</label>
+                  <input type="number" step="0.01" value={editingItem.price} onChange={(e) => setEditingItem({ ...editingItem, price: e.target.value })} style={uiStyles.input} />
+                </div>
+                <div>
+                  <label style={uiStyles.label}>จำนวนในคลัง</label>
+                  <input type="number" value={editingItem.stock} onChange={(e) => setEditingItem({ ...editingItem, stock: e.target.value })} style={uiStyles.input} required />
+                </div>
               </div>
+
               <div>
-                <label style={uiStyles.label}>จำนวนคงเหลือในคลัง</label>
-                <input type="number" value={editingItem.stock} onChange={(e) => setEditingItem({ ...editingItem, stock: e.target.value })} style={uiStyles.input} required />
+                <label style={uiStyles.label}>อัปโหลดรูปภาพพัสดุ</label>
+                <input type="file" accept="image/*" onChange={handleItemImageFileUpload} style={uiStyles.input} />
               </div>
-              <div>
-                <label style={uiStyles.label}>รูปภาพพัสดุ (อัปโหลดจากไฟล์)</label>
-                <input type="file" accept="image/*" onChange={handleItemImageFileUpload} style={{ fontSize: '12px' }} />
-                {editingItem.image && (
-                  <div style={{ marginTop: '8px' }}>
-                    <img src={editingItem.image} alt="พัสดุ" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }} />
-                  </div>
-                )}
-              </div>
+
               <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                <button type="submit" style={{ ...uiStyles.submitBtn, flex: 1 }}>บันทึกข้อมูล</button>
-                <button type="button" onClick={() => setEditingItem(null)} style={{ ...uiStyles.submitBtn, flex: 1, background: '#f1f5f9', color: '#475569', boxShadow: 'none' }}>ยกเลิก</button>
+                <button type="submit" style={{ ...uiStyles.submitBtn, flex: 1 }}>บันทึก</button>
+                <button type="button" onClick={() => setEditingItem(null)} style={{ ...uiStyles.editBtn, padding: '12px 20px' }}>ยกเลิก</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* MODAL: EDIT USER */}
-      {editingUser && (
-        <div style={uiStyles.modalOverlay}>
-          <div style={uiStyles.modalContent} className="modal-content-responsive">
-            <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '800', color: '#0f172a' }}>✏️ แก้ไขข้อมูลส่วนตัว / บุคลากร</h3>
-            <form onSubmit={handleSaveUserEdit} style={uiStyles.formStack}>
-              <div>
-                <label style={uiStyles.label}>รหัสประจำตัว</label>
-                <input type="text" value={editingUser.id} onChange={(e) => setEditingUser({ ...editingUser, id: e.target.value })} style={uiStyles.input} required />
-              </div>
-              <div>
-                <label style={uiStyles.label}>ชื่อ-นามสกุล</label>
-                <input type="text" value={editingUser.name} onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })} style={uiStyles.input} required />
-              </div>
-              <div>
-                <label style={uiStyles.label}>เบอร์โทรศัพท์</label>
-                <input type="text" value={editingUser.phone} onChange={(e) => setEditingUser({ ...editingUser, phone: e.target.value })} style={uiStyles.input} required />
-              </div>
-              <div>
-                <label style={uiStyles.label}>แผนกวิชา</label>
-                <select value={editingUser.department} onChange={(e) => setEditingUser({ ...editingUser, department: e.target.value })} style={uiStyles.input}>
-                  {DEPARTMENTS.map((dept) => (
-                    <option key={dept} value={dept}>{dept}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label style={uiStyles.label}>รหัสผ่านใหม่ (หากไม่เปลี่ยนให้เว้นว่างไว้)</label>
-                <input type="password" placeholder="••••••••" value={editingUser.password} onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })} style={uiStyles.input} />
-              </div>
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                <button type="submit" style={{ ...uiStyles.submitBtn, flex: 1 }}>บันทึกข้อมูล</button>
-                <button type="button" onClick={() => setEditingUser(null)} style={{ ...uiStyles.submitBtn, flex: 1, background: '#f1f5f9', color: '#475569', boxShadow: 'none' }}>ยกเลิก</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* DRAWER: CART */}
+      {/* DRAWER: ตะกร้าสินค้า */}
       {isCartOpen && (
-        <div style={uiStyles.cartDrawer} className="cart-drawer-responsive">
-          <div style={uiStyles.drawerHeader}>
-            <div style={{ fontSize: '16px', fontWeight: '800', color: '#0f172a' }}>🛒 ตะกร้าขอเบิกพัสดุ</div>
-            <button onClick={() => setIsCartOpen(false)} style={{ border: 'none', background: 'transparent', fontSize: '20px', cursor: 'pointer', color: '#64748b' }}>✕</button>
-          </div>
+        <div style={uiStyles.modalOverlay} onClick={() => setIsCartOpen(false)}>
+          <div style={uiStyles.cartDrawer} className="cart-drawer-responsive" onClick={(e) => e.stopPropagation()}>
+            <div style={uiStyles.drawerHeader}>
+              <h3 style={{ margin: 0, color: '#0f172a', fontSize: '16px' }}>🛒 ตะกร้าขอเบิกพัสดุ ({totalCartCount})</h3>
+              <button onClick={() => setIsCartOpen(false)} style={{ border: 'none', background: 'transparent', fontSize: '20px', cursor: 'pointer' }}>✕</button>
+            </div>
 
-          <div style={{ flex: 1, padding: '20px', overflowY: 'auto' }}>
-            {cart.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 20px', color: '#94a3b8' }}>
-                <span style={{ fontSize: '48px', display: 'block', marginBottom: '12px' }}>🛒</span>
-                ยังไม่มีรายการพัสดุในตะกร้า
+            <div style={{ flex: 1, padding: '20px 28px', overflowY: 'auto' }}>
+              {cart.length === 0 ? (
+                <div style={{ textAlign: 'center', color: '#94a3b8', padding: '40px 0' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '12px' }}>🛒</div>
+                  <p style={{ fontSize: '14px' }}>ไม่มีรายการพัสดุในตะกร้า</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  {cart.map((item) => (
+                    <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', padding: '12px 16px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: '700', fontSize: '13px', color: '#0f172a' }}>{item.name}</div>
+                        <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>{item.code}</div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <button onClick={() => updateCartQty(item.id, -1)} style={uiStyles.qtyBtn}>-</button>
+                        <span style={{ fontWeight: 'bold', fontSize: '13px', width: '20px', textAlign: 'center' }}>{item.qty}</span>
+                        <button onClick={() => updateCartQty(item.id, 1)} style={uiStyles.qtyBtn}>+</button>
+                      </div>
+                    </div>
+                  ))}
+
+                  <div style={{ marginTop: '20px' }}>
+                    <label style={uiStyles.label}>ระบุวัตถุประสงค์ในการเบิกใช้งาน *</label>
+                    <textarea
+                      placeholder="เช่น ใช้สำหรับการจัดกิจกรรมการเรียนการสอน หรือใช้ประจำห้องปฏิบัติการ..."
+                      value={purpose}
+                      onChange={(e) => setPurpose(e.target.value)}
+                      style={{ ...uiStyles.input, minHeight: '80px', resize: 'vertical' }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div style={{ padding: '20px 28px', borderTop: '1px solid #f1f5f9', background: '#ffffff' }}>
+              <button
+                onClick={handleCheckoutCart}
+                disabled={cart.length === 0}
+                style={{
+                  ...uiStyles.submitBtn,
+                  background: cart.length === 0 ? '#cbd5e1' : 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+                  cursor: cart.length === 0 ? 'not-allowed' : 'pointer'
+                }}
+              >
+                ส่งคำขอเบิกพัสดุ 📩
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ประวัติการเบิกสินค้าสำหรับอาจารย์ */}
+      {isHistoryModalOpen && (
+        <div style={uiStyles.modalOverlay} onClick={() => setIsHistoryModalOpen(false)}>
+          <div
+            style={{ ...uiStyles.modalContent, maxWidth: '750px', width: '95%' }}
+            className="modal-content-responsive"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
+              <h3 style={{ margin: 0, color: '#0f172a', fontSize: '18px', fontWeight: '800' }}>📜 ประวัติการเบิกพัสดุของคุณ</h3>
+              <button onClick={() => setIsHistoryModalOpen(false)} style={{ border: 'none', background: 'transparent', fontSize: '20px', cursor: 'pointer', color: '#64748b' }}>✕</button>
+            </div>
+
+            {userRequestsHistory.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: '#94a3b8' }}>
+                <div style={{ fontSize: '48px', marginBottom: '10px' }}>📄</div>
+                <p>คุณยังไม่มีประวัติการส่งคำขอเบิกพัสดุ</p>
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {cart.map((item) => (
-                  <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: '#f8fafc', borderRadius: '14px', border: '1px solid #f1f5f9' }}>
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: '700', color: '#0f172a' }}>{item.name}</div>
-                      <div style={{ fontSize: '11px', color: '#0284c7', fontWeight: '600' }}>{item.code}</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {userRequestsHistory.map((req) => (
+                  <div key={req.id} style={{ border: '1px solid #e2e8f0', borderRadius: '16px', padding: '16px', backgroundColor: '#ffffff', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                      <div>
+                        <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#0284c7', background: '#e0f2fe', padding: '3px 8px', borderRadius: '6px' }}>REQ-{req.id}</span>
+                        <span style={{ fontSize: '12px', color: '#64748b', marginLeft: '10px' }}>วันที่: {req.date}</span>
+                      </div>
+                      <span style={{
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                        fontSize: '11px',
+                        fontWeight: 'bold',
+                        background: req.status === 'approved' ? '#dcfce7' : req.status === 'rejected' ? '#fee2e2' : '#fef3c7',
+                        color: req.status === 'approved' ? '#16a34a' : req.status === 'rejected' ? '#dc2626' : '#d97706'
+                      }}>
+                        {req.status === 'approved' ? 'อนุมัติแล้ว' : req.status === 'rejected' ? 'ปฏิเสธ' : 'รออนุมัติ'}
+                      </span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <button onClick={() => updateCartQty(item.id, -1)} style={uiStyles.qtyBtn}>-</button>
-                      <span style={{ fontSize: '13px', fontWeight: '700' }}>{item.qty}</span>
-                      <button onClick={() => updateCartQty(item.id, 1)} style={uiStyles.qtyBtn}>+</button>
+
+                    <div style={{ fontSize: '13px', marginBottom: '10px', color: '#475569' }}>
+                      <strong>วัตถุประสงค์:</strong> {req.purpose}
+                    </div>
+
+                    <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: '10px', marginBottom: '12px' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#0f172a', marginBottom: '4px' }}>รายการพัสดุ:</div>
+                      {req.items && req.items.map((it, idx) => (
+                        <div key={idx} style={{ fontSize: '12px', color: '#334155' }}>
+                          • {it.name} <strong style={{ color: '#0284c7' }}>x{it.qty}</strong>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                      <button
+                        onClick={() => setSelectedPrintRequest(req)}
+                        style={uiStyles.printBtn}
+                      >
+                        🖨️ พิมพ์ใบเบิก / บันทึก PDF
+                      </button>
                     </div>
                   </div>
                 ))}
-
-                <div style={{ marginTop: '20px' }}>
-                  <label style={uiStyles.label}>วัตถุประสงค์ในการเบิกใช้งาน *</label>
-                  <textarea
-                    rows="3"
-                    placeholder="เช่น ใช้สำหรับการจัดกิจกรรมการเรียนการสอนวิชาคอมพิวเตอร์..."
-                    value={purpose}
-                    onChange={(e) => setPurpose(e.target.value)}
-                    style={{ ...uiStyles.input, resize: 'none' }}
-                  />
-                </div>
               </div>
             )}
           </div>
-
-          {cart.length > 0 && (
-            <div style={{ padding: '20px', borderTop: '1px solid #f1f5f9', background: '#ffffff' }}>
-              <button onClick={handleCheckoutCart} style={uiStyles.submitBtn}>
-                ส่งรายการขอเบิกพัสดุ 📩
-              </button>
-            </div>
-          )}
         </div>
       )}
     </>
