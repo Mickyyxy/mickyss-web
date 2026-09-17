@@ -878,6 +878,8 @@ export default function App() {
 
   const [notification, setNotification] = useState(null);
   const [selectedPrintRequest, setSelectedPrintRequest] = useState(null);
+  const [serverHistory, setServerHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   const [requests, setRequests] = useState([
     {
@@ -942,6 +944,43 @@ export default function App() {
     setIsCartOpen(false);
     setIsBurgerOpen(false);
     setIsHistoryModalOpen(false);
+    setServerHistory([]);
+  };
+
+  const openHistory = async () => {
+    setIsHistoryModalOpen(true);
+    setHistoryLoading(true);
+
+    try {
+      const response = await fetch(`/user/history.php?user_id=${encodeURIComponent(currentUser.id)}`);
+      const result = await response.json();
+
+      if (result.status === 'success') {
+        const mapped = (result.data || []).map((item) => ({
+          id: item.id,
+          teacherName: currentUser.name,
+          department: currentUser.department || '-',
+          phone: currentUser.phone || '-',
+          purpose: item.purpose || '-',
+          items: [{
+            id: item.equipment_id,
+            name: item.item_name || 'พัสดุ/อุปกรณ์',
+            qty: Number(item.quantity) || 1,
+          }],
+          date: item.date || item.created_at,
+          status: item.status || 'pending',
+        }));
+
+        setServerHistory(mapped);
+      } else {
+        setServerHistory([]);
+      }
+    } catch (error) {
+      console.error('โหลดประวัติการเบิกไม่สำเร็จ:', error);
+      setServerHistory([]);
+    } finally {
+      setHistoryLoading(false);
+    }
   };
 
   const handleOpenUserEdit = (user) => {
@@ -1144,9 +1183,13 @@ export default function App() {
     return matchesSearch && matchesCategory;
   });
 
-  const userRequestsHistory = requests.filter(
+  const localRequestsHistory = requests.filter(
     (r) => r.teacherName === currentUser?.name
   );
+
+  const userRequestsHistory = serverHistory.length > 0
+    ? serverHistory
+    : localRequestsHistory;
 
   const totalCartCount = cart.reduce((sum, item) => sum + item.qty, 0);
 
@@ -1400,7 +1443,7 @@ export default function App() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               {currentUser.role === 'teacher' && (
                 <>
-                  <button onClick={() => setIsHistoryModalOpen(true)} style={{ ...uiStyles.editBtn, height: '44px', borderRadius: '14px', padding: '0 16px' }}>
+                  <button onClick={openHistory} style={{ ...uiStyles.editBtn, height: '44px', borderRadius: '14px', padding: '0 16px' }}>
                     📜 ประวัติการเบิก
                   </button>
                   <button onClick={() => setIsCartOpen(true)} style={uiStyles.navCartBtn}>
@@ -1423,6 +1466,12 @@ export default function App() {
                         {currentUser.role === 'admin' ? '👑 เจ้าหน้าที่งานพัสดุ' : `👨‍🏫 ${currentUser.department || 'ครูประจำวิชา'}`}
                       </div>
                     </div>
+
+                    {currentUser.role === 'teacher' && (
+                      <button onClick={openHistory} style={uiStyles.menuItemBtn} className="hover-menu-btn">
+                        <span>📜 ประวัติการเบิกของฉัน</span>
+                      </button>
+                    )}
 
                     <button onClick={() => handleOpenUserEdit(currentUser)} style={uiStyles.menuItemBtn} className="hover-menu-btn">
                       <span>✏️ แก้ไขข้อมูลส่วนตัว</span>
@@ -1928,7 +1977,12 @@ export default function App() {
               <button onClick={() => setIsHistoryModalOpen(false)} style={{ border: 'none', background: 'none', fontSize: '20px', cursor: 'pointer' }}>✕</button>
             </div>
 
-            {userRequestsHistory.length === 0 ? (
+            {historyLoading ? (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: '#64748b' }}>
+                <span style={{ fontSize: '34px', display: 'block', marginBottom: '12px' }}>⏳</span>
+                กำลังโหลดประวัติการเบิก...
+              </div>
+            ) : userRequestsHistory.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '40px 0', color: '#94a3b8' }}>
                 <span style={{ fontSize: '48px', display: 'block', marginBottom: '12px' }}>📜</span>
                 คุณยังไม่มีประวัติการเบิกพัสดุ
