@@ -37,12 +37,26 @@ try {
         $equipmentTable = 'equipments';
     }
 
-    $userJoin = in_array('users', $tables, true)
-        ? 'LEFT JOIN users u ON u.id = b.user_id'
-        : '';
-    $userNameExpr = in_array('users', $tables, true)
-        ? "COALESCE(u.name, u.username, '')"
-        : "''";
+    $userJoin = '';
+    $userNameExpr = "CAST(b.user_id AS CHAR)";
+    if (in_array('users', $tables, true)) {
+        $userColumns = [];
+        $userColumnStmt = $db->query('SHOW COLUMNS FROM users');
+        foreach ($userColumnStmt->fetchAll(PDO::FETCH_ASSOC) as $column) {
+            $userColumns[$column['Field']] = true;
+        }
+
+        $nameParts = [];
+        foreach (['name', 'full_name', 'username', 'email'] as $candidate) {
+            if (isset($userColumns[$candidate])) {
+                $nameParts[] = "u.{$candidate}";
+            }
+        }
+        if ($nameParts) {
+            $userNameExpr = 'COALESCE(' . implode(', ', $nameParts) . ", CAST(b.user_id AS CHAR))";
+        }
+        $userJoin = 'LEFT JOIN users u ON u.id = b.user_id';
+    }
     $equipmentJoin = ($equipmentTable && isset($columns['equipment_id']))
         ? "LEFT JOIN {$equipmentTable} e ON e.id = b.equipment_id"
         : '';
