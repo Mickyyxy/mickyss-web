@@ -53,43 +53,29 @@ try {
     $createdExpr = isset($columns['created_at']) ? "b.created_at" : "NULL";
     $startExpr = isset($columns['start_date']) ? "b.start_date" : "NULL";
     $endExpr = isset($columns['end_date']) ? "b.end_date" : "NULL";
+    $equipmentIdExpr = isset($columns['equipment_id']) ? "b.equipment_id" : "NULL";
+    $itemNameExpr = ($equipmentTable && isset($columns['equipment_id'])) ? "e.name" : "NULL";
+    $equipmentJoin = ($equipmentTable && isset($columns['equipment_id']))
+        ? "LEFT JOIN {$equipmentTable} e ON e.id = b.equipment_id"
+        : "";
 
-    if ($equipmentTable) {
-        $sql = "
-            SELECT
-                b.id,
-                b.user_id,
-                b.equipment_id,
-                $quantityExpr AS quantity,
-                b.status,
-                $createdExpr AS created_at,
-                $startExpr AS start_date,
-                $endExpr AS end_date,
-                $purposeExpr AS purpose,
-                e.name AS item_name
-            FROM borrow_requests b
-            LEFT JOIN {$equipmentTable} e ON e.id = b.equipment_id
-            WHERE b.user_id = ?
-            ORDER BY b.id DESC
-        ";
-    } else {
-        $sql = "
-            SELECT
-                b.id,
-                b.user_id,
-                b.equipment_id,
-                $quantityExpr AS quantity,
-                b.status,
-                $createdExpr AS created_at,
-                $startExpr AS start_date,
-                $endExpr AS end_date,
-                $purposeExpr AS purpose,
-                NULL AS item_name
-            FROM borrow_requests b
-            WHERE b.user_id = ?
-            ORDER BY b.id DESC
-        ";
-    }
+    $sql = "
+        SELECT
+            b.id,
+            b.user_id,
+            $equipmentIdExpr AS equipment_id,
+            $quantityExpr AS quantity,
+            b.status,
+            $createdExpr AS created_at,
+            $startExpr AS start_date,
+            $endExpr AS end_date,
+            $purposeExpr AS purpose,
+            $itemNameExpr AS item_name
+        FROM borrow_requests b
+        $equipmentJoin
+        WHERE b.user_id = ?
+        ORDER BY b.id DESC
+    ";
 
     $stmt = $conn->prepare($sql);
     $stmt->execute([$userId]);
