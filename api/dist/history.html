@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ประวัติการเบิกพัสดุ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#f8fafc;color:#0f172a;font-family:Prompt,Arial,sans-serif}
+    .nav{height:74px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:5}
+    .brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#dbeafe,#fce7f3);display:grid;place-items:center;font-size:22px}
+    .brand h1{font-size:16px;margin:0}.brand p{font-size:11px;color:#0284c7;margin:3px 0 0;font-weight:600}
+    .back{border:0;background:#e0f2fe;color:#0369a1;border-radius:12px;padding:10px 15px;cursor:pointer;font-weight:700}
+    main{max-width:1000px;margin:28px auto;padding:0 18px}.hero{background:linear-gradient(135deg,#e0f2fe,#f5e8ff);border-radius:22px;padding:24px;margin-bottom:20px}
+    .hero h2{margin:0;font-size:22px}.hero p{margin:6px 0 0;color:#0369a1;font-size:13px}
+    .loading,.empty,.error{background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:48px 20px;text-align:center;color:#64748b}
+    .list{display:flex;flex-direction:column;gap:14px}.card{background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:18px;box-shadow:0 5px 20px rgba(15,23,42,.04)}
+    .top{display:flex;justify-content:space-between;gap:12px;align-items:center}.id{font-weight:800}.date{font-size:12px;color:#64748b;margin-left:10px}
+    .status{padding:5px 11px;border-radius:999px;font-size:11px;font-weight:800}.pending{background:#fef3c7;color:#a16207}.approved{background:#dcfce7;color:#15803d}.rejected{background:#fee2e2;color:#b91c1c}
+    .purpose{font-size:12px;color:#475569;margin:12px 0}.item{background:#f8fafc;border-radius:11px;padding:10px 12px;font-size:12px;margin-top:6px}
+    .print{margin-top:14px;border:0;background:#0284c7;color:#fff;border-radius:10px;padding:9px 13px;font-weight:700;cursor:pointer}
+    @media(max-width:640px){.nav{padding:0 14px}.brand h1{font-size:13px}.brand p{font-size:10px}.hero h2{font-size:18px}}
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="brand">
+      <div class="logo">🏛️</div>
+      <div><h1>วิทยาลัยเทคโนโลยีอุดมศึกษาพณิชยการ</h1><p>ระบบบริหารจัดการพัสดุและครุภัณฑ์</p></div>
+    </div>
+    <button class="back" onclick="history.back()">← กลับ</button>
+  </nav>
+  <main>
+    <section class="hero">
+      <h2>📜 ประวัติการเบิกพัสดุของฉัน</h2>
+      <p id="subtitle">กำลังโหลดข้อมูล...</p>
+    </section>
+    <div id="content" class="loading">⏳ กำลังโหลดประวัติการเบิก...</div>
+  </main>
+  <script>
+    const userId = new URLSearchParams(location.search).get('user_id');
+    const content = document.getElementById('content');
+    const subtitle = document.getElementById('subtitle');
+
+    const esc = (value) => String(value ?? '-').replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+    }[c]));
+
+    const statusText = {
+      pending: ['รออนุมัติ','pending'],
+      approved: ['อนุมัติแล้ว','approved'],
+      rejected: ['ไม่อนุมัติ','rejected']
+    };
+
+    async function loadHistory(){
+      if(!userId){
+        content.className='error';
+        content.textContent='ไม่พบรหัสผู้ใช้ กรุณาเข้าสู่ระบบใหม่';
+        subtitle.textContent='';
+        return;
+      }
+      try{
+        const res = await fetch(`/user/history.php?user_id=${encodeURIComponent(userId)}`, {cache:'no-store'});
+        const result = await res.json();
+        if(result.status !== 'success') throw new Error(result.message || 'โหลดข้อมูลไม่สำเร็จ');
+        const rows = result.data || [];
+        subtitle.textContent = `พบประวัติการเบิก ${rows.length} รายการ`;
+        if(!rows.length){
+          content.className='empty';
+          content.innerHTML='📜<br><br>คุณยังไม่มีประวัติการเบิกพัสดุ';
+          return;
+        }
+        content.className='list';
+        content.innerHTML = rows.map(row => {
+          const s = statusText[row.status] || [row.status || 'ไม่ระบุ','pending'];
+          const date = row.date ? new Date(row.date).toLocaleString('th-TH') : '-';
+          return `<article class="card">
+            <div class="top">
+              <div><span class="id">REQ-${esc(row.id)}</span><span class="date">${esc(date)}</span></div>
+              <span class="status ${s[1]}">${s[0]}</span>
+            </div>
+            <div class="purpose"><strong>วัตถุประสงค์:</strong> ${esc(row.purpose || '-')}</div>
+            <div class="item">• ${esc(row.item_name)} × <strong>${esc(row.quantity || 1)}</strong></div>
+            <button class="print" onclick="window.print()">🖨️ พิมพ์ / บันทึก PDF</button>
+          </article>`;
+        }).join('');
+      }catch(err){
+        console.error(err);
+        content.className='error';
+        content.innerHTML='❌ ไม่สามารถโหลดประวัติการเบิกได้<br><small>กรุณาตรวจสอบการเชื่อมต่อ API แล้วลองใหม่</small>';
+        subtitle.textContent='';
+      }
+    }
+    loadHistory();
+  </script>
+</body>
+</html>
