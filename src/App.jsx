@@ -1471,9 +1471,6 @@ export default function App() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               {currentUser.role === 'teacher' && (
                 <>
-                  <button onClick={openHistory} style={{ ...uiStyles.editBtn, height: '44px', borderRadius: '14px', padding: '0 16px' }}>
-                    📜 ประวัติการเบิก
-                  </button>
                   <button onClick={() => setIsCartOpen(true)} style={uiStyles.navCartBtn}>
                     <span>🛒 ตะกร้า</span>
                     {totalCartCount > 0 && <span style={uiStyles.cartBadge}>{totalCartCount}</span>}
