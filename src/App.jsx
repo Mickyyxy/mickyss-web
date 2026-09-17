@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 // ==========================================
 // RAW DATA: 200 ITEMS WITH STANDARDIZED VARIANT NAMES
