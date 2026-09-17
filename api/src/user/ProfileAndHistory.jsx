@@ -10,13 +10,13 @@ const ProfileAndHistory = ({ userId }) => {
   useEffect(() => {
     if (!userId) return;
 
-    fetch(`/api/user/profile.php?user_id=${userId}`)
+    fetch(`/user/profile.php?user_id=${userId}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.status === 'success') setProfile({ ...data.data, password: '' });
       });
 
-    fetch(`/api/user/history.php?user_id=${userId}`)
+    fetch(`/user/history.php?user_id=${userId}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.status === 'success') setHistory(data.data || []);
@@ -25,7 +25,7 @@ const ProfileAndHistory = ({ userId }) => {
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
-    const res = await fetch('/api/user/profile.php', {
+    const res = await fetch('/user/profile.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: userId, ...profile })

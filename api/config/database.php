@@ -34,9 +34,13 @@ class Database {
             
             $options = [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::MYSQL_ATTR_SSL_CA => true,
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
             ];
+
+            // ตัวเลือก SSL ของ MySQL มีเฉพาะเมื่อไดรเวอร์ pdo_mysql ถูกโหลดแล้ว
+            if (defined('PDO::MYSQL_ATTR_SSL_CA')) {
+                $options[PDO::MYSQL_ATTR_SSL_CA] = true;
+                $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+            }
 
             $this->conn = new PDO($dsn, $this->username, $this->password, $options);
             $this->conn->exec("set names utf8mb4");
