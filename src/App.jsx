@@ -938,6 +938,34 @@ export default function App() {
     setRegDept(DEPARTMENTS[0]);
   };
 
+  const loadAdminHistory = async () => {
+    if (currentUser?.role !== 'admin') return;
+    setAdminHistoryLoading(true);
+    try {
+      const response = await fetch('/admin/history.php', { cache: 'no-store' });
+      const result = await response.json();
+      if (result.status === 'success') setAdminHistory(result.data || []);
+    } catch (error) {
+      console.error('โหลดประวัติการเบิกสำหรับผู้ดูแลไม่สำเร็จ:', error);
+    } finally {
+      setAdminHistoryLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (currentUser?.role !== 'admin') return undefined;
+    loadAdminHistory();
+    const timer = window.setInterval(loadAdminHistory, 10000);
+    return () => window.clearInterval(timer);
+  }, [currentUser?.role]);
+
+  useEffect(() => {
+    if (!isHistoryModalOpen || currentUser?.role !== 'teacher') return undefined;
+    openHistory();
+    const timer = window.setInterval(openHistory, 10000);
+    return () => window.clearInterval(timer);
+  }, [isHistoryModalOpen, currentUser?.id]);
+
   const handleLogout = () => {
     setCurrentUser(null);
     setCart([]);
@@ -1578,6 +1606,53 @@ export default function App() {
                                 <button onClick={() => setSelectedPrintRequest(req)} style={uiStyles.printBtn}>🖨️ พิมพ์/PDF</button>
                               </div>
                             </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {adminTab === 'history' && (
+                  <div style={uiStyles.tableCard} className="table-card-responsive">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '16px' }}>
+                      <div>
+                        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800' }}>📜 ประวัติการเบิกทั้งหมด</h3>
+                        <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: '12px' }}>อัปเดตอัตโนมัติทุก 10 วินาที</p>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        <input
+                          value={adminHistorySearch}
+                          onChange={(e) => setAdminHistorySearch(e.target.value)}
+                          placeholder="ค้นหาผู้ขอหรือรายการ..."
+                          style={{ ...uiStyles.input, width: '220px', padding: '9px 12px' }}
+                        />
+                        <select value={adminHistoryFilter} onChange={(e) => setAdminHistoryFilter(e.target.value)} style={{ ...uiStyles.input, width: '150px', padding: '9px 12px' }}>
+                          <option value="all">ทุกสถานะ</option>
+                          <option value="pending">รออนุมัติ</option>
+                          <option value="approved">อนุมัติแล้ว</option>
+                          <option value="rejected">ไม่อนุมัติ</option>
+                        </select>
+                        <button onClick={loadAdminHistory} style={uiStyles.editBtn}>รีเฟรช</button>
+                      </div>
+                    </div>
+                    {adminHistoryLoading && <div style={{ color: '#0284c7', fontSize: '12px', marginBottom: '10px' }}>กำลังโหลดข้อมูลล่าสุด...</div>}
+                    <table style={uiStyles.table} className="table-responsive">
+                      <thead><tr style={uiStyles.thRow}>
+                        <th style={uiStyles.th}>รหัส</th><th style={uiStyles.th}>ผู้ขอเบิก</th><th style={uiStyles.th}>รายการ</th><th style={uiStyles.th}>จำนวน</th><th style={uiStyles.th}>วันที่</th><th style={uiStyles.th}>สถานะ</th>
+                      </tr></thead>
+                      <tbody>
+                        {adminHistory.filter((row) => {
+                          const text = `${row.user_name || ''} ${row.item_name || ''}`.toLowerCase();
+                          return (adminHistoryFilter === 'all' || row.status === adminHistoryFilter) && text.includes(adminHistorySearch.toLowerCase());
+                        }).map((row) => (
+                          <tr key={row.id} style={uiStyles.tr} className="tr-hover">
+                            <td style={uiStyles.td}><strong>REQ-{row.id}</strong></td>
+                            <td style={uiStyles.td}>{row.user_name || `User #${row.user_id}`}</td>
+                            <td style={uiStyles.td}>{row.item_name || 'พัสดุ/อุปกรณ์'}</td>
+                            <td style={uiStyles.td}>{row.quantity || 1}</td>
+                            <td style={uiStyles.td}>{row.created_at ? new Date(row.created_at).toLocaleString('th-TH') : '-'}</td>
+                            <td style={uiStyles.td}>{row.status === 'approved' ? '✅ อนุมัติแล้ว' : row.status === 'rejected' ? '❌ ไม่อนุมัติ' : '⏳ รออนุมัติ'}</td>
                           </tr>
                         ))}
                       </tbody>
